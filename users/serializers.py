@@ -54,3 +54,7 @@ class LoginSerializer(serializers.Serializer):
             {"error": "Unable to log in with provided credentials."}
         )
 
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("user_id","name")

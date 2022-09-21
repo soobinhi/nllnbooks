@@ -1,5 +1,5 @@
+from users.serializers import UserInfoSerializer
 from .models import Book, Rental
-
 from rest_framework import serializers
 
 class BookSerializer(serializers.ModelSerializer):
@@ -13,6 +13,8 @@ class BookCreateSerializer(serializers.ModelSerializer):
         fields = ("id","title","isbn","author","publisher")
 
 class RentalSerializer(serializers.ModelSerializer):
+    user_id = UserInfoSerializer(read_only=True)
+    book_id = BookSerializer(read_only=True)
     class Meta:
         model = Rental
         fields = ("id","user_id","book_id","rental_date","return_date","is_extension","extension_date")

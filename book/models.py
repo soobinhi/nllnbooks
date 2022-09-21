@@ -11,7 +11,7 @@ class Book(models.Model):
     isbn = models.CharField(max_length=20)
     author = models.CharField(max_length=150)
     publisher = models.CharField(max_length=150)
-    book_status = models.IntegerField(default=1)
+    book_status = models.IntegerField(default=0)
     
 class Rental(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_rental')

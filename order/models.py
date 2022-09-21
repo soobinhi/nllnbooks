@@ -4,7 +4,7 @@ from users.models import User
 from django.utils import timezone
 
 class Order(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_order')
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
     isbn = models.CharField(max_length=20)
     author = models.CharField(max_length=150)

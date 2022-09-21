@@ -1,13 +1,17 @@
+from collections import UserDict
+from users.serializers import UserInfoSerializer
 from .models import Order
+from users.models import User
 from django.contrib.auth import authenticate
 from django.utils import timezone
 
 from rest_framework import serializers
 
 class OrderSerializer(serializers.ModelSerializer):
+    user_id = UserInfoSerializer(read_only=True)
     class Meta:
         model = Order
-        fields = ("id","title","isbn","author","publisher","user_id","reason","order_date","order_status")
+        fields = ('__all__')
 
 class OrderCreateSerializer(serializers.ModelSerializer):
     class Meta:
