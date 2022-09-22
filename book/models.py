@@ -19,4 +19,8 @@ class Rental(models.Model):
     rental_date = models.DateTimeField(default=timezone.now)
     return_date = models.DateTimeField(null=True)
     is_extension = models.BooleanField(default=False)
-    extension_date = models.DateTimeField(null=True)
+    
+class Reserve(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_reserve')
+    book_id = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_reserve')
+    reserve_date = models.DateTimeField(default=timezone.now)
