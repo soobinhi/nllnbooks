@@ -41,9 +41,17 @@ class RentalViewSet(viewsets.ModelViewSet):
         return RentalCreateSerializer
 
     def perform_create(self, serializer):
-        book = get_object_or_404(Book, pk = serializer.validated_data['book_id'].id)
+        book_id = serializer.validated_data['book_id'].id
+        user_id = serializer.validated_data['user_id']
+        book = get_object_or_404(Book, pk = book_id)
         book.book_status = 1
         book.save()
+        reserve = Reserve.objects.filter(book_id = book_id, reserve_status = 2, user_id = user_id)
+        print(user_id)
+        if(reserve.exists()):
+            reserve_first = reserve.first()
+            reserve_first.reserve_status = 3
+            reserve_first.save()
         serializer.save()
 
 class ReserveViewSet(viewsets.ModelViewSet):
@@ -81,17 +89,22 @@ def book_complete(request,pk):
     rental.return_date = timezone.now()
     rental.save()
     book = get_object_or_404(Book, pk=rental.book_id.id)
-    reserve = Reserve.objects.filter(book_id = rental.book_id.id)
-
+    reserve = Reserve.objects.filter(book_id = rental.book_id.id, reserve_status = 0)
     if(reserve.exists()):
         book.book_status = 3
+        reserve_first = reserve.first()
+        reserve_first.available_date = timezone.now()
+        reserve_first.reserve_status = 2
+        reserve_first.save()
     else:
         book.book_status = 0
     book.save()
+   
     return Response({'status':'ok'})
 
 @api_view(['GET'])
-def del_reserve(request,pk):
+def reserve_cancel(request,pk):
     reserve = get_object_or_404(Reserve, pk=pk)
-    reserve.delete()
+    reserve.reserve_status = 1
+    reserve.save()
     return Response({'status':'ok'})

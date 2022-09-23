@@ -29,7 +29,7 @@ class ReserveSerializer(serializers.ModelSerializer):
     book_id = BookSerializer(read_only=True)
     class Meta:
         model = Reserve
-        fields = ("id","user_id","book_id","reserve_date")
+        fields = ('__all__')
 
 class ReserveCreateSerializer(serializers.ModelSerializer):
     class Meta:
