@@ -3,10 +3,11 @@ from django.shortcuts import render
 from nllnbooks.settings import REST_FRAMEWORK
 from .models import User
 from rest_framework import generics, status
-from .serializers import LoginSerializer, RegisterSerializer
+from .serializers import LoginSerializer, RegisterSerializer, UserInfoSerializer
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 
-from users import serializers
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -22,3 +23,9 @@ class LoginView(generics.GenericAPIView):
         user_id = request.data.get('user_id')
         is_admin = User.objects.get(user_id=user_id).is_admin
         return Response({"token":token.key, "user_id":user_id, "is_admin":is_admin}, status=status.HTTP_200_OK)
+
+class UserListView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserInfoSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
