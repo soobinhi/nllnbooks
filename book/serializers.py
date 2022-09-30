@@ -1,5 +1,5 @@
 from users.serializers import UserInfoSerializer
-from .models import Book, Rental, Reserve
+from .models import Book, Overdue, Rental, Reserve
 from rest_framework import serializers
 
 class BookSerializer(serializers.ModelSerializer):
@@ -15,10 +15,9 @@ class BookCreateSerializer(serializers.ModelSerializer):
 class RentalSerializer(serializers.ModelSerializer):
     user_id = UserInfoSerializer(read_only=True)
     book_id = BookSerializer(read_only=True)
-    overdue_data = serializers.StringRelatedField(read_only=True)
     class Meta:
         model = Rental
-        fields = ("id","user_id","overdue_data","book_id","rental_date","return_date","is_extension")
+        fields = ("id","user_id","book_id","rental_date","return_date","is_extension")
 
 class RentalCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,3 +35,8 @@ class ReserveCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reserve
         fields = ("user_id","book_id")
+
+class OverdueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Overdue
+        fields = ('__all__')

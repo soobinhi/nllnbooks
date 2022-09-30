@@ -6,13 +6,14 @@ from order.permissions import CustomReadOnly
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from django.utils import timezone
+from datetime import datetime, timedelta
 from rest_framework.response import Response
 
 from users.models import User
 from .models import Book, Overdue, Rental, Reserve, ReserveAlarmLog, Overdue
 from .serializers import BookSerializer, BookCreateSerializer, RentalCreateSerializer, RentalSerializer, ReserveCreateSerializer, ReserveSerializer
 
-from datetime import datetime, timedelta
+
 from django.utils.dateformat import DateFormat
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -123,6 +124,7 @@ def book_detail(request,pk):
 @api_view(['POST'])
 def rent_submit(request):
     data = request.data.copy()
+    print(data)
     for item in data:
         serializer = RentalCreateSerializer(data=item)
         if serializer.is_valid():
@@ -149,16 +151,19 @@ def return_submit(request):
         rental.save()
         #책정보 및 사용자 정보 가져오기 
         book = get_object_or_404(Book, pk=rental.book_id.id)
-        user = get_object_or_404(User, pk=item['user_id']['user_id'])
         #해당 책에 예약 이력 있는지 확인 
         reserve = Reserve.objects.filter(book_id = book.id, reserve_status = 0)
         if(reserve.exists()):
             #예약 있을 경우 예약중 상태 변경
             book.book_status = 3
             reserve_first = reserve.first()
+            print(reserve_first)
             reserve_first.available_date = timezone.now()
             reserve_first.reserve_status = 2
             reserve_first.save()
+            user = get_object_or_404(User, pk=reserve_first.user_id)
+            print(reserve_first.user_id)
+            print(user)
             #예약자에게 알림 메일 로그 기록
             alarmlog = ReserveAlarmLog()
             alarmlog.user_id = reserve_first.user_id
