@@ -11,6 +11,7 @@ class Book(models.Model):
     author = models.CharField(max_length=150)
     publisher = models.CharField(max_length=150)
     book_status = models.IntegerField(default=0)
+    image = models.TextField(default='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg')
     # status 0 : 대여 가능 / 1: 대여중 / 2: 반납승인대기 / 3: 예약대기 
     
 class Rental(models.Model):

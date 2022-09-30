@@ -127,9 +127,15 @@ def rent_submit(request):
         serializer = RentalCreateSerializer(data=item)
         if serializer.is_valid():
             book_id = item['book_id']
+            user_id = item['user_id']
             book = get_object_or_404(Book, pk = book_id)
             book.book_status = 1
             book.save()
+            reserve = Reserve.objects.filter(book_id = book_id, reserve_status = 2, user_id = user_id)
+            if(reserve.exists()):
+                reserve_first = reserve.first()
+                reserve_first.reserve_status = 3
+                reserve_first.save()
             serializer.save()
     return Response({'status':'ok'})
 

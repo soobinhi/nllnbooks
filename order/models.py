@@ -12,5 +12,6 @@ class Order(models.Model):
     reason = models.TextField(null=True)
     order_status = models.IntegerField(default=1)
     order_date = models.DateTimeField(default=timezone.now)
+    image = models.TextField(default='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg')
     
     

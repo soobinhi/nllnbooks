@@ -1,3 +1,4 @@
+from email.mime import image
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
@@ -41,7 +42,8 @@ def change_status(request,pk):
             title = order.title,
             isbn = order.isbn,
             author = order.author,
-            publisher = order.publisher
+            publisher = order.publisher,
+            image = order.image
         )
     return Response({'status':'ok'})
 

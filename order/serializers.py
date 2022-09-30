@@ -16,4 +16,4 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ("title","isbn","author","publisher","reason")
+        fields = ("title","isbn","author","publisher","reason","image")

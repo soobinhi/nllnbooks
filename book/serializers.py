@@ -5,12 +5,12 @@ from rest_framework import serializers
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ("id","title","isbn","author","publisher","book_status")
+        fields = ("id","title","isbn","author","publisher","book_status","image")
 
 class BookCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ("id","title","isbn","author","publisher")
+        fields = ("id","title","isbn","author","publisher","image")
 
 class RentalSerializer(serializers.ModelSerializer):
     user_id = UserInfoSerializer(read_only=True)
