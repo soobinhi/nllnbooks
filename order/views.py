@@ -10,7 +10,7 @@ from django.utils.dateformat import DateFormat
 from django.utils import timezone
 
 from users.models import User
-from book.models import Book
+from book.models import Book, Reserve
 from .models import Order
 from .serializers import OrderSerializer, OrderCreateSerializer
 
@@ -33,19 +33,24 @@ def change_status(request,pk):
     order = get_object_or_404(Order, pk=pk)
     order.order_status += 1 
     order.save()
-    print(order.order_status)
     if(order.order_status == 3):
-        print('입고완료')
         code='BK'
         date = DateFormat(datetime.now()).format('Ymd')
         idx = str(Book.objects.filter(id__contains=date).count()+1).zfill(3)
+        book_id = code+date+idx
         Book.objects.create(
-            id = code+date+idx,
+            id = book_id,
             title = order.title,
             isbn = order.isbn,
             author = order.author,
             publisher = order.publisher,
-            image = order.image
+            image = order.image,
+            book_status = 3
+        )
+        book = get_object_or_404(Book,pk=book_id)
+        Reserve.objects.create(
+            user_id = order.user_id,
+            book_id = book
         )
     return Response({'status':'ok'})
 

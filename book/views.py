@@ -1,5 +1,6 @@
 
 from asyncio.windows_events import NULL
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
 from order.permissions import CustomReadOnly
@@ -45,14 +46,12 @@ class RentalViewSet(viewsets.ModelViewSet):
         return RentalCreateSerializer()
 
     def perform_create(self, serializer):
-        print(serializer.length)
         book_id = serializer.validated_data['book_id'].id
         user_id = serializer.validated_data['user_id']
         book = get_object_or_404(Book, pk = book_id)
         book.book_status = 1
         book.save()
         reserve = Reserve.objects.filter(book_id = book_id, reserve_status = 2, user_id = user_id)
-        print(user_id)
         if(reserve.exists()):
             reserve_first = reserve.first()
             reserve_first.reserve_status = 3
@@ -72,7 +71,20 @@ class ReserveViewSet(viewsets.ModelViewSet):
             return ReserveSerializer
         return ReserveCreateSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        book_id = serializer.validated_data['book_id'].id
+        user_id = serializer.validated_data['user_id']
+        reserve = Reserve.objects.filter(book_id = book_id, user_id = user_id, reserve_status__in=[0,2])
+        if(reserve.exists()):
+            return Response({'status':'fail'})
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
     def perform_create(self, serializer):
+       
         serializer.save()
 
 @api_view(['GET'])
@@ -124,7 +136,6 @@ def book_detail(request,pk):
 @api_view(['POST'])
 def rent_submit(request):
     data = request.data.copy()
-    print(data)
     for item in data:
         serializer = RentalCreateSerializer(data=item)
         if serializer.is_valid():
@@ -157,13 +168,10 @@ def return_submit(request):
             #예약 있을 경우 예약중 상태 변경
             book.book_status = 3
             reserve_first = reserve.first()
-            print(reserve_first)
             reserve_first.available_date = timezone.now()
             reserve_first.reserve_status = 2
             reserve_first.save()
             user = get_object_or_404(User, pk=reserve_first.user_id)
-            print(reserve_first.user_id)
-            print(user)
             #예약자에게 알림 메일 로그 기록
             alarmlog = ReserveAlarmLog()
             alarmlog.user_id = reserve_first.user_id
